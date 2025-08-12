@@ -1,0 +1,30 @@
+/* hidden by default on big screens */
+#touchControls { display: none; }
+
+/* show on small screens */
+@media (max-width: 900px) {
+  #touchControls {
+    position: fixed;
+    left: 0; right: 0; bottom: 16px;
+    display: flex; justify-content: center; gap: 16px;
+    z-index: 10;
+    pointer-events: auto;
+  }
+  #touchControls button {
+    width: 84px; height: 84px;
+    font-size: 32px;
+    border-radius: 16px;
+    border: 2px solid #333;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    touch-action: none;       /* important: we’ll handle touch */
+  }
+}
+
+/* optional: make canvas scale to fit screen width */
+canvas {
+  max-width: 100%;
+  height: auto;           /* CSS pixel scale; keeps internal rez */
+  display: block;
+  margin: 0 auto;
+}
