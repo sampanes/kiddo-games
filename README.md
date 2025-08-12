@@ -6,6 +6,9 @@ This repository is a collection of fun, simple games designed with (and often by
 Expect creative ideas, quirky mechanics, and plenty of imagination. These games are intended 
 to be lightweight, easy to run in a browser, and completely free to play.
 
+You can click around it at my pages site:
+https://sampanes.github.io/kiddo-games/
+
 ## Games
 Currently included:
 - **Unicorn's Adventure Around the World (UAAW)** — Play as a unicorn monster truck, climb hills, 
