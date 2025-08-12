@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unicorn's Adventure Around the World</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Unicorn's Adventure Around the World</h1>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+  <script>
+    // Preload stage image
+    const stageImg = new Image();
+    stageImg.src = 'assets/stage.png'; // hill + sky PNG
+
+    stageImg.onload = () => {
+      const canvas = document.getElementById('gameCanvas');
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(stageImg, 0, 0, canvas.width, canvas.height);
+    };
+  </script>
+
+  <script src="script.js"></script>
+</body>
+</html>
