@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unicorn Monster Truck Adventure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes rainbow {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .rainbow-bg {
+            background: linear-gradient(45deg, #ff0000, #ff8000, #ffff00, #80ff00, #00ff80, #00ffff, #0080ff, #8000ff, #ff00ff, #ff0080);
+            background-size: 1000% 1000%;
+            animation: rainbow 15s ease infinite;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 80vh;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #87CEEB 60%, #228B22 40%);
+        }
+
+        .road {
+            position: absolute;
+            bottom: 0;
+            width: 300%;
+            height: 20%;
+            background: repeating-linear-gradient(90deg,
+                    #333,
+                    #333 20px,
+                    #555 20px,
+                    #555 40px);
+            animation: roadMove 5s linear infinite;
+        }
+
+        @keyframes roadMove {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+
+        .truck {
+            position: absolute;
+            bottom: 15%;
+            left: 20%;
+            width: 150px;
+            height: 100px;
+            transition: transform 0.2s;
+            z-index: 10;
+        }
+
+        .house {
+            position: absolute;
+            bottom: 20%;
+            right: -200px;
+            width: 150px;
+            height: 120px;
+            background-color: #FF69B4;
+            border: 3px solid #FF1493;
+            border-radius: 10px;
+            cursor: pointer;
+            z-index: 5;
+            transition: all 0.3s;
+        }
+
+        .house:hover {
+            transform: scale(1.05);
+        }
+
+        .house-roof {
+            position: absolute;
+            top: -20px;
+            left: -10px;
+            width: 170px;
+            height: 40px;
+            background-color: #9370DB;
+            clip-path: polygon(0% 100%, 50% 0%, 100% 100%);
+        }
+
+        .house-door {
+            position: absolute;
+            bottom: 0;
+            left: 50px;
+            width: 50px;
+            height: 70px;
+            background-color: #FFD700;
+            border: 2px solid #DAA520;
+        }
+
+        .house-window {
+            position: absolute;
+            top: 30px;
+            left: 20px;
+            width: 30px;
+            height: 30px;
+            background-color: #ADD8E6;
+            border: 2px solid #000;
+            border-radius: 50%;
+        }
+
+        .interior {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #FFF0F5;
+            display: none;
+            z-index: 20;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .cloud {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: cloudMove linear infinite;
+        }
+
+        @keyframes cloudMove {
+            0% {
+                transform: translateX(100vw);
+            }
+
+            100% {
+                transform: translateX(-200px);
+            }
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            animation: twinkle 2s infinite alternate;
+        }
+
+        @keyframes twinkle {
+            0% {
+                opacity: 0.2;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        .unicorn-horn {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            width: 20px;
+            height: 40px;
+            background: linear-gradient(to bottom, #FFD700, #FF1493);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            transform: translateX(-50%);
+            z-index: 11;
+        }
+
+        .wheel {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #000;
+            border-radius: 50%;
+            border: 3px solid #FFD700;
+            bottom: -20px;
+            animation: wheelSpin 0.5s linear infinite;
+        }
+
+        @keyframes wheelSpin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .wheel-spoke {
+            position: absolute;
+            width: 3px;
+            height: 20px;
+            background-color: #FFD700;
+            top: 50%;
+            left: 50%;
+            transform-origin: top center;
+        }
+
+        .truck-body {
+            position: absolute;
+            width: 100%;
+            height: 60px;
+            bottom: 0;
+            background: linear-gradient(to right, #FF1493, #FF69B4);
+            border-radius: 20px 20px 0 0;
+            border: 3px solid #FFD700;
+        }
+
+        .truck-cab {
+            position: absolute;
+            width: 60px;
+            height: 40px;
+            top: -40px;
+            left: 20px;
+            background: linear-gradient(to right, #FF69B4, #FF1493);
+            border-radius: 10px 10px 0 0;
+            border: 3px solid #FFD700;
+        }
+
+        .truck-window {
+            position: absolute;
+            width: 50px;
+            height: 20px;
+            top: 5px;
+            left: 5px;
+            background-color: #ADD8E6;
+            border-radius: 5px;
+        }
+
+        .customization-item {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 2px solid #FF69B4;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .customization-item:hover {
+            transform: scale(1.1);
+            background-color: #FFD1DC;
+        }
+    </style>
+</head>
+
+<body class="rainbow-bg min-h-screen flex flex-col items-center p-4">
+    <h1 class="text-4xl font-bold text-white mb-4 text-center">Unicorn Monster Truck Adventure</h1>
+
+    <div class="game-container mb-4 rounded-lg shadow-2xl">
+        <div class="road"></div>
+
+        <!-- Truck -->
+        <div class="truck">
+            <div class="unicorn-horn"></div>
+            <div class="truck-body">
+                <div class="truck-cab">
+                    <div class="truck-window"></div>
+                </div>
+            </div>
+            <div class="wheel" style="left: 10px;">
+                <div class="wheel-spoke" style="transform: rotate(0deg) translateY(-10px);"></div>
+                <div class="wheel-spoke" style="transform: rotate(60deg) translateY(-10px);"></div>
+                <div class="wheel-spoke" style="transform: rotate(120deg) translateY(-10px);"></div>
+                <div class="wheel-spoke" style="transform: rotate(180deg) translateY(-10px);"></div>
+                <div class="wheel-spoke" style="transform: rotate(240deg) translateY(-10px);"></div>
+                <div class="wheel-spoke" style="transform: rotate(300deg) translateY(-10px);"></div>
+            </div>
+            <div class="wheel" style="right: 10px;">
+                <div class="wheel-spoke" style="transform: rotate(0deg) translateY(-10px);"></div>
+                <div class="wheel-spoke" style="transform: rotate(60deg) translateY(-10px);"></div>
+                <div class="wheel-spoke" style="transform: rotate(120deg) translateY(-10px);"></div>
+                <div class="wheel-spoke" style="transform: rotate(180deg) translateY(-10px);"></div>
+                <div class="wheel-spoke" style="transform: rotate(240deg) translateY(-10px);"></div>
+                <div class="wheel-spoke" style="transform: rotate(300deg) translateY(-10px);"></div>
+            </div>
+        </div>
+
+        <!-- Houses will be generated here -->
+
+        <!-- Clouds will be generated here -->
+
+        <!-- Stars will be generated here -->
+
+        <!-- House Interior -->
+        <div class="interior rounded-lg shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold text-pink-600">Unicorn House</h2>
+                <button id="exit-house"
+                    class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-2 px-4 rounded-full transition duration-300">
+                    Exit House
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-xl font-semibold text-purple-600 mb-2">Customize Your Truck</h3>
+                    <div class="flex flex-wrap">
+                        <div class="customization-item" data-color="pink">
+                            <div class="w-10 h-10 bg-pink-500 rounded-full"></div>
+                            <p class="text-center mt-1">Pink</p>
+                        </div>
+                        <div class="customization-item" data-color="purple">
+                            <div class="w-10 h-10 bg-purple-500 rounded-full"></div>
+                            <p class="text-center mt-1">Purple</p>
+                        </div>
+                        <div class="customization-item" data-color="rainbow">
+                            <div class="w-10 h-10 rainbow-bg rounded-full"></div>
+                            <p class="text-center mt-1">Rainbow</p>
+                        </div>
+                        <div class="customization-item" data-color="blue">
+                            <div class="w-10 h-10 bg-blue-500 rounded-full"></div>
+                            <p class="text-center mt-1">Blue</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h3 class="text-xl font-semibold text-purple-600 mb-2">Decorate Your House</h3>
+                    <div class="flex flex-wrap">
+                        <div class="customization-item" data-decoration="balloons">
+                            <div class="w-10 h-10 bg-red-500 rounded-full"></div>
+                            <p class="text-center mt-1">Balloons</p>
+                        </div>
+                        <div class="customization-item" data-decoration="stars">
+                            <div class="w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center">★</div>
+                            <p class="text-center mt-1">Stars</p>
+                        </div>
+                        <div class="customization-item" data-decoration="flowers">
+                            <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">🌸</div>
+                            <p class="text-center mt-1">Flowers</p>
+                        </div>
+                        <div class="customization-item" data-decoration="confetti">
+                            <div class="w-10 h-10 rainbow-bg rounded-full"></div>
+                            <p class="text-center mt-1">Confetti</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-lg shadow md:col-span-2">
+                    <h3 class="text-xl font-semibold text-purple-600 mb-2">Create Magic</h3>
+                    <textarea id="magic-text" class="w-full p-2 border-2 border-pink-300 rounded-lg mb-2"
+                        placeholder="Write your magical wishes here..."></textarea>
+                    <button id="cast-spell"
+                        class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-full transition duration-300">
+                        Cast Spell
+                    </button>
+                    <div id="spell-result" class="mt-2 text-pink-700 font-semibold"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls bg-white bg-opacity-80 p-4 rounded-lg shadow-lg w-full max-w-md">
+        <div class="flex justify-center space-x-4 mb-4">
+            <button id="jump"
+                class="bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-full transition duration-300 transform hover:scale-110">
+                JUMP
+            </button>
+            <button id="boost"
+                class="bg-pink-500 hover:bg-pink-600 text-white font-bold py-3 px-6 rounded-full transition duration-300 transform hover:scale-110">
+                BOOST
+            </button>
+        </div>
+        <div class="text-center">
+            <p class="text-purple-800 font-semibold">Score: <span id="score">0</span></p>
+            <p class="text-pink-800 font-semibold">Houses Visited: <span id="houses-visited">0</span></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const gameContainer = document.querySelector('.game-container');
+            const truck = document.querySelector('.truck');
+            const road = document.querySelector('.road');
+            const interior = document.querySelector('.interior');
+            const exitHouseBtn = document.getElementById('exit-house');
+            const jumpBtn = document.getElementById('jump');
+            const boostBtn = document.getElementById('boost');
+            const scoreDisplay = document.getElementById('score');
+            const housesVisitedDisplay = document.getElementById('houses-visited');
+            const castSpellBtn = document.getElementById('cast-spell');
+            const magicText = document.getElementById('magic-text');
+            const spellResult = document.getElementById('spell-result');
+
+            let score = 0;
+            let housesVisited = 0;
+            let isJumping = false;
+            let isBoosting = false;
+            let gameSpeed = 5;
+            let currentHouse = null;
+
+            // Create clouds
+            for (let i = 0; i < 5; i++) {
+                createCloud();
+            }
+
+            // Create stars
+            for (let i = 0; i < 20; i++) {
+                createStar();
+            }
+
+            // Create initial houses
+            createHouse();
+
+            // Game loop
+            setInterval(gameLoop, 20);
+
+            // Event listeners
+            jumpBtn.addEventListener('click', jump);
+            boostBtn.addEventListener('mousedown', startBoost);
+            boostBtn.addEventListener('mouseup', endBoost);
+            boostBtn.addEventListener('touchstart', startBoost);
+            boostBtn.addEventListener('touchend', endBoost);
+            exitHouseBtn.addEventListener('click', exitHouse);
+            castSpellBtn.addEventListener('click', castSpell);
+
+            // Keyboard controls
+            document.addEventListener('keydown', function (e) {
+                if (e.code === 'Space') {
+                    jump();
+                } else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+                    startBoost();
+                }
+            });
+
+            document.addEventListener('keyup', function (e) {
+                if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
+                    endBoost();
+                }
+            });
+
+            // Customization items
+            document.querySelectorAll('.customization-item[data-color]').forEach(item => {
+                item.addEventListener('click', function () {
+                    const color = this.getAttribute('data-color');
+                    customizeTruck(color);
+                });
+            });
+
+            document.querySelectorAll('.customization-item[data-decoration]').forEach(item => {
+                item.addEventListener('click', function () {
+                    const decoration = this.getAttribute('data-decoration');
+                    decorateHouse(decoration);
+                });
+            });
+
+            function gameLoop() {
+                // Move houses
+                document.querySelectorAll('.house').forEach(house => {
+                    const currentLeft = parseInt(house.style.right);
+                    house.style.right = (currentLeft + gameSpeed) + 'px';
+
+                    // Remove houses that are off screen
+                    if (currentLeft > window.innerWidth + 200) {
+                        house.remove();
+                        createHouse(); // Create a new house when one is removed
+                        score += 50;
+                        scoreDisplay.textContent = score;
+                    }
+                });
+
+                // Move clouds
+                document.querySelectorAll('.cloud').forEach(cloud => {
+                    const currentLeft = parseInt(cloud.style.left);
+                    cloud.style.left = (currentLeft - 0.5) + 'px';
+
+                    // Reset clouds that are off screen
+                    if (currentLeft < -100) {
+                        cloud.style.left = window.innerWidth + 'px';
+                        cloud.style.top = Math.random() * 50 + 'px';
+                    }
+                });
+            }
+
+            function createCloud() {
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+
+                const size = Math.random() * 50 + 50;
+                cloud.style.width = size + 'px';
+                cloud.style.height = size / 2 + 'px';
+                cloud.style.left = Math.random() * window.innerWidth + 'px';
+                cloud.style.top = Math.random() * 50 + 'px';
+
+                const animationDuration = Math.random() * 30 + 30;
+                cloud.style.animationDuration = animationDuration + 's';
+
+                gameContainer.appendChild(cloud);
+            }
+
+            function createStar() {
+                const star = document.createElement('div');
+                star.className = 'star';
+
+                star.style.left = Math.random() * window.innerWidth + 'px';
+                star.style.top = Math.random() * 100 + 'px';
+
+                const animationDuration = Math.random() * 3 + 1;
+                star.style.animationDuration = animationDuration + 's';
+
+                gameContainer.appendChild(star);
+            }
+
+            function createHouse() {
+                const house = document.createElement('div');
+                house.className = 'house';
+                house.style.right = '-200px';
+
+                const roof = document.createElement('div');
+                roof.className = 'house-roof';
+
+                const door = document.createElement('div');
+                door.className = 'house-door';
+
+                const window = document.createElement('div');
+                window.className = 'house-window';
+
+                house.appendChild(roof);
+                house.appendChild(door);
+                house.appendChild(window);
+
+                house.addEventListener('click', function () {
+                    enterHouse(this);
+                });
+
+                gameContainer.appendChild(house);
+            }
+
+            function jump() {
+                if (isJumping) return;
+
+                isJumping = true;
+                truck.style.transform = 'translateY(-100px)';
+
+                setTimeout(() => {
+                    truck.style.transform = 'translateY(0)';
+                    setTimeout(() => {
+                        isJumping = false;
+                    }, 300);
+                }, 500);
+
+                score += 10;
+                scoreDisplay.textContent = score;
+            }
+
+            function startBoost() {
+                if (isBoosting) return;
+
+                isBoosting = true;
+                gameSpeed = 10;
+                road.style.animationDuration = '3s';
+
+                // Add boost effect to truck
+                const boostEffect = document.createElement('div');
+                boostEffect.className = 'absolute bottom-0 left-0 w-full h-10 bg-yellow-400 opacity-50 rounded-full blur-md';
+                boostEffect.style.transform = 'scaleX(0.5)';
+                truck.appendChild(boostEffect);
+
+                setTimeout(() => {
+                    boostEffect.remove();
+                }, 300);
+            }
+
+            function endBoost() {
+                isBoosting = false;
+                gameSpeed = 5;
+                road.style.animationDuration = '5s';
+            }
+
+            function enterHouse(house) {
+                currentHouse = house;
+                house.style.display = 'none';
+                interior.style.display = 'block';
+                housesVisited++;
+                housesVisitedDisplay.textContent = housesVisited;
+
+                // Pause game elements
+                document.querySelectorAll('.house, .cloud').forEach(el => {
+                    el.style.animationPlayState = 'paused';
+                });
+            }
+
+            function exitHouse() {
+                interior.style.display = 'none';
+                if (currentHouse) {
+                    currentHouse.remove();
+                    createHouse();
+                }
+
+                // Resume game elements
+                document.querySelectorAll('.house, .cloud').forEach(el => {
+                    el.style.animationPlayState = 'running';
+                });
+            }
+
+            function customizeTruck(color) {
+                const truckBody = document.querySelector('.truck-body');
+                const truckCab = document.querySelector('.truck-cab');
+
+                switch (color) {
+                    case 'pink':
+                        truckBody.style.background = 'linear-gradient(to right, #FF1493, #FF69B4)';
+                        truckCab.style.background = 'linear-gradient(to right, #FF69B4, #FF1493)';
+                        break;
+                    case 'purple':
+                        truckBody.style.background = 'linear-gradient(to right, #8A2BE2, #9370DB)';
+                        truckCab.style.background = 'linear-gradient(to right, #9370DB, #8A2BE2)';
+                        break;
+                    case 'rainbow':
+                        truckBody.style.background = 'linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet)';
+                        truckCab.style.background = 'linear-gradient(to right, violet, indigo, blue, green, yellow, orange, red)';
+                        break;
+                    case 'blue':
+                        truckBody.style.background = 'linear-gradient(to right, #1E90FF, #87CEFA)';
+                        truckCab.style.background = 'linear-gradient(to right, #87CEFA, #1E90FF)';
+                        break;
+                }
+
+                spellResult.textContent = "Your truck is now magically " + color + "!  ✨";
+            }
+
+            function decorateHouse(decoration) {
+                let decorationElement;
+
+                switch (decoration) {
+                    case 'balloons':
+                        decorationElement = document.createElement('div');
+                        decorationElement.className = 'absolute top-0 left-0 w-full h-full';
+                        for (let i = 0; i < 10; i++) {
+                            const balloon = document.createElement('div');
+                            balloon.className = 'absolute rounded-full w-8 h-10';
+                            balloon.style.left = Math.random() * 100 + '%';
+                            balloon.style.top = Math.random() * 100 + '%';
+                            balloon.style.background = `hsl(${Math.random() * 360}, 100%, 70%)`;
+                            decorationElement.appendChild(balloon);
+                        }
+                        break;
+                    case 'stars':
+                        decorationElement = document.createElement('div');
+                        decorationElement.className = 'absolute top-0 left-0 w-full h-full';
+                        for (let i = 0; i < 20; i++) {
+                            const star = document.createElement('div');
+                            star.className = 'absolute text-yellow-400 text-xl';
+                            star.textContent = '★';
+                            star.style.left = Math.random() * 100 + '%';
+                            star.style.top = Math.random() * 100 + '%';
+                            decorationElement.appendChild(star);
+                        }
+                        break;
+                    case 'flowers':
+                        decorationElement = document.createElement('div');
+                        decorationElement.className = 'absolute top-0 left-0 w-full h-full';
+                        for (let i = 0; i < 15; i++) {
+                            const flower = document.createElement('div');
+                            flower.className = 'absolute text-2xl';
+                            flower.textContent = '🌸';
+                            flower.style.left = Math.random() * 100 + '%';
+                            flower.style.top = Math.random() * 100 + '%';
+                            decorationElement.appendChild(flower);
+                        }
+                        break;
+                    case 'confetti':
+                        decorationElement = document.createElement('div');
+                        decorationElement.className = 'absolute top-0 left-0 w-full h-full overflow-hidden';
+                        for (let i = 0; i < 50; i++) {
+                            const confetti = document.createElement('div');
+                            confetti.className = 'absolute w-2 h-2';
+                            confetti.style.left = Math.random() * 100 + '%';
+                            confetti.style.top = Math.random() * 100 + '%';
+                            confetti.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                            decorationElement.appendChild(confetti);
+                        }
+                        break;
+                }
+
+                // Remove previous decorations
+                document.querySelectorAll('.house-decoration').forEach(el => el.remove());
+
+                if (decorationElement) {
+                    decorationElement.classList.add('house-decoration');
+                    interior.appendChild(decorationElement);
+                    spellResult.textContent = "Your house is now decorated with " + decoration + "! 🌈";
+                }
+            }
+
+            function castSpell() {
+                const wish = magicText.value.trim();
+                if (wish) {
+                    const responses = [
+                        "Your wish for \"" + wish + "\" has been granted with unicorn magic!  🌟",
+                        "The unicorns heard your wish: \"" + wish + "\" and sprinkled some fairy dust!  ✨",
+                        "Abracadabra! Your wish \"" + wish + "\" is now reality! ",
+                        "The magic spell for \"" + wish + "\" was successfully cast! Watch the magic happen!  💫"
+                    ];
+
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    spellResult.textContent = randomResponse;
+
+                    // Add sparkle effect
+                    for (let i = 0; i < 10; i++) {
+                        setTimeout(() => {
+                            const sparkle = document.createElement('div');
+                            sparkle.className = 'absolute w-3 h-3 bg-yellow-400 rounded-full animate-ping';
+                            sparkle.style.left = Math.random() * 80 + 10 + '%';
+                            sparkle.style.top = Math.random() * 80 + 10 + '%';
+                            interior.appendChild(sparkle);
+
+                            setTimeout(() => {
+                                sparkle.remove();
+                            }, 1000);
+                        }, i * 100);
+                    }
+                } else {
+                    spellResult.textContent = "Write your magical wish first!";
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

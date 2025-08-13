@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make Believe Land</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .floating {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .world {
+            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+            min-height: 60vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+
+        .sun {
+            position: absolute;
+            background: radial-gradient(circle, #FFD700, #FF8C00);
+            border-radius: 50%;
+            box-shadow: 0 0 50px #FFD700;
+        }
+
+        .moon {
+            position: absolute;
+            background: radial-gradient(circle, #E6E6FA, #B0C4DE);
+            border-radius: 50%;
+            box-shadow: 0 0 30px #E6E6FA;
+        }
+
+        .star {
+            position: absolute;
+            background: white;
+            clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+        }
+
+        .flower {
+            position: absolute;
+        }
+
+        .flower-center {
+            width: 15px;
+            height: 15px;
+            background: #FFD700;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .petal {
+            width: 20px;
+            height: 10px;
+            background: #FF69B4;
+            border-radius: 50% 50% 0 0;
+            position: absolute;
+            transform-origin: bottom center;
+        }
+
+        .tree {
+            position: absolute;
+        }
+
+        .tree-trunk {
+            width: 20px;
+            height: 60px;
+            background: #8B4513;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .tree-top {
+            width: 80px;
+            height: 80px;
+            background: #228B22;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .house {
+            position: absolute;
+        }
+
+        .house-body {
+            width: 80px;
+            height: 60px;
+            background: #FF6347;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .house-roof {
+            width: 0;
+            height: 0;
+            border-left: 50px solid transparent;
+            border-right: 50px solid transparent;
+            border-bottom: 40px solid #8B0000;
+            position: absolute;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .house-door {
+            width: 20px;
+            height: 30px;
+            background: #8B4513;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .house-window {
+            width: 20px;
+            height: 20px;
+            background: #ADD8E6;
+            position: absolute;
+            bottom: 30px;
+            left: 30%;
+            transform: translateX(-50%);
+        }
+
+        .animal {
+            position: absolute;
+            font-size: 30px;
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-b from-purple-100 to-blue-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-5xl font-bold text-center text-purple-800 mb-2">Make Believe Land</h1>
+        <p class="text-center text-purple-600 mb-8">Create your own magical world!</p>
+
+        <div class="flex flex-col md:flex-row gap-8 mb-8">
+            <!-- Game Controls -->
+            <div class="bg-white p-6 rounded-lg shadow-lg w-full md:w-1/3">
+                <h2 class="text-2xl font-bold text-purple-700 mb-4">Controls</h2>
+
+                <div class="mb-6">
+                    <label class="block text-purple-600 mb-2">Number of Players</label>
+                    <div class="flex gap-4">
+                        <button id="one-player"
+                            class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition">1
+                            Player</button>
+                        <button id="two-players"
+                            class="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600 transition">2
+                            Players</button>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-purple-600 mb-2">Current Player: <span id="current-player"
+                            class="font-bold">1</span></label>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-purple-600 mb-2">Press <span
+                            class="font-bold bg-yellow-200 px-2 py-1 rounded">A</span> to add elements</label>
+                    <div class="grid grid-cols-3 gap-2 mt-4">
+                        <button class="add-element px-3 py-2 bg-green-100 rounded hover:bg-green-200 transition"
+                            data-type="flower">
+                            <i class="fas fa-spa mr-1"></i> Flower
+                        </button>
+                        <button class="add-element px-3 py-2 bg-yellow-100 rounded hover:bg-yellow-200 transition"
+                            data-type="sun">
+                            <i class="fas fa-sun mr-1"></i> Sun
+                        </button>
+                        <button class="add-element px-3 py-2 bg-blue-100 rounded hover:bg-blue-200 transition"
+                            data-type="moon">
+                            <i class="fas fa-moon mr-1"></i> Moon
+                        </button>
+                        <button class="add-element px-3 py-2 bg-green-100 rounded hover:bg-green-200 transition"
+                            data-type="tree">
+                            <i class="fas fa-tree mr-1"></i> Tree
+                        </button>
+                        <button class="add-element px-3 py-2 bg-red-100 rounded hover:bg-red-200 transition"
+                            data-type="house">
+                            <i class="fas fa-home mr-1"></i> House
+                        </button>
+                        <button class="add-element px-3 py-2 bg-purple-100 rounded hover:bg-purple-200 transition"
+                            data-type="animal">
+                            <i class="fas fa-paw mr-1"></i> Animal
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <button id="clear-world"
+                        class="w-full px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition">
+                        <i class="fas fa-trash-alt mr-2"></i> Clear World
+                    </button>
+                </div>
+
+                <div class="bg-purple-50 p-4 rounded">
+                    <h3 class="font-bold text-purple-700 mb-2">How to Play:</h3>
+                    <ul class="list-disc pl-5 text-purple-600 text-sm">
+                        <li>Choose 1 or 2 players</li>
+                        <li>Press 'A' key or click buttons to add elements</li>
+                        <li>Create your own magical world together!</li>
+                        <li>You can have multiple suns, moons, etc.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Game World -->
+            <div class="world w-full md:w-2/3 rounded-lg shadow-lg relative" id="game-world">
+                <div class="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-green-600 to-green-400"></div>
+                <div id="world-elements" class="relative h-full"></div>
+                <div class="absolute bottom-4 left-4 text-white font-bold">
+                    <span id="element-count">0</span> elements in your world
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center text-purple-500 italic">
+            "Imagination is the only weapon in the war against reality." - Cheshire Cat
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const world = document.getElementById('game-world');
+            const worldElements = document.getElementById('world-elements');
+            const elementCount = document.getElementById('element-count');
+            const currentPlayerDisplay = document.getElementById('current-player');
+            const onePlayerBtn = document.getElementById('one-player');
+            const twoPlayersBtn = document.getElementById('two-players');
+            const clearWorldBtn = document.getElementById('clear-world');
+            const addElementBtns = document.querySelectorAll('.add-element');
+
+            let currentPlayer = 1;
+            let players = 1;
+            let currentElementType = 'flower';
+            let elements = [];
+
+            // Initialize game
+            init();
+
+            function init() {
+                // Add clouds
+                for (let i = 0; i < 5; i++) {
+                    addCloud();
+                }
+
+                // Add initial sun
+                addElement('sun', 100, 100, 50, 1);
+
+                updateElementCount();
+            }
+
+            function addCloud() {
+                const size = Math.random() * 50 + 50;
+                let x = Math.random() * (world.offsetWidth - size);
+                let y = Math.random() * (world.offsetHeight / 3);
+                const speed = Math.random() * 0.5 + 0.2;
+
+                const cloud = document.createElement('div');
+                cloud.className = 'cloud';
+                cloud.style.width = `${size}px`;
+                cloud.style.height = `${size / 2}px`;
+                cloud.style.left = `${x}px`;
+                cloud.style.top = `${y}px`;
+
+                worldElements.appendChild(cloud);
+
+                // Animate cloud
+                function animate() {
+                    x += speed;
+                    if (x > world.offsetWidth) {
+                        x = -size;
+                    }
+                    cloud.style.left = `${x}px`;
+                    requestAnimationFrame(animate);
+                }
+
+                animate();
+            }
+
+            function addElement(type, x, y, size = 30, player = currentPlayer) {
+                const element = document.createElement('div');
+                let elementObj = { type, x, y, size, player, element };
+                elements.push(elementObj);
+
+                switch (type) {
+                    case 'flower':
+                        createFlower(element, x, y, size, player);
+                        break;
+                    case 'sun':
+                        createSun(element, x, y, size, player);
+                        break;
+                    case 'moon':
+                        createMoon(element, x, y, size, player);
+                        break;
+                    case 'tree':
+                        createTree(element, x, y, size, player);
+                        break;
+                    case 'house':
+                        createHouse(element, x, y, size, player);
+                        break;
+                    case 'animal':
+                        createAnimal(element, x, y, size, player);
+                        break;
+                }
+
+                worldElements.appendChild(element);
+                updateElementCount();
+
+                // Make draggable
+                makeDraggable(element, elementObj);
+
+                return element;
+            }
+
+            function createFlower(element, x, y, size, player) {
+                element.className = 'flower';
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                element.style.left = `${x}px`;
+                element.style.top = `${y}px`;
+
+                // Flower center
+                const center = document.createElement('div');
+                center.className = 'flower-center';
+                element.appendChild(center);
+
+                // Petals
+                const colors = player === 1 ? ['#FF69B4', '#FF1493', '#DB7093'] : ['#9370DB', '#BA55D3', '#DA70D6'];
+                for (let i = 0; i < 8; i++) {
+                    const petal = document.createElement('div');
+                    petal.className = 'petal';
+                    petal.style.backgroundColor = colors[i % colors.length];
+                    petal.style.transform = `translate(-50%, -50%) rotate(${i * 45}deg) translateY(-15px)`;
+                    element.appendChild(petal);
+                }
+            }
+
+            function createSun(element, x, y, size, player) {
+                element.className = 'sun floating';
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                element.style.left = `${x}px`;
+                element.style.top = `${y}px`;
+                element.style.backgroundColor = player === 1 ? 'radial-gradient(circle, #FFD700, #FF8C00)' : 'radial-gradient(circle, #FFA500, #FF4500)';
+            }
+
+            function createMoon(element, x, y, size, player) {
+                element.className = 'moon floating';
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                element.style.left = `${x}px`;
+                element.style.top = `${y}px`;
+                element.style.backgroundColor = player === 1 ? 'radial-gradient(circle, #E6E6FA, #B0C4DE)' : 'radial-gradient(circle, #D8BFD8, #9370DB)';
+            }
+
+            function createTree(element, x, y, size, player) {
+                element.className = 'tree';
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                element.style.left = `${x}px`;
+                element.style.top = `${y}px`;
+
+                const trunk = document.createElement('div');
+                trunk.className = 'tree-trunk';
+                trunk.style.backgroundColor = player === 1 ? '#8B4513' : '#A0522D';
+                element.appendChild(trunk);
+
+                const top = document.createElement('div');
+                top.className = 'tree-top';
+                top.style.backgroundColor = player === 1 ? '#228B22' : '#2E8B57';
+                element.appendChild(top);
+            }
+
+            function createHouse(element, x, y, size, player) {
+                element.className = 'house';
+                element.style.width = `${size}px`;
+                element.style.height = `${size}px`;
+                element.style.left = `${x}px`;
+                element.style.top = `${y}px`;
+
+                const body = document.createElement('div');
+                body.className = 'house-body';
+                body.style.backgroundColor = player === 1 ? '#FF6347' : '#CD5C5C';
+                element.appendChild(body);
+
+                const roof = document.createElement('div');
+                roof.className = 'house-roof';
+                roof.style.borderBottomColor = player === 1 ? '#8B0000' : '#B22222';
+                element.appendChild(roof);
+
+                const door = document.createElement('div');
+                door.className = 'house-door';
+                element.appendChild(door);
+
+                const window = document.createElement('div');
+                window.className = 'house-window';
+                element.appendChild(window);
+            }
+
+            function createAnimal(element, x, y, size, player) {
+                element.className = 'animal pulse';
+                element.style.left = `${x}px`;
+                element.style.top = `${y}px`;
+
+                const animals = player === 1 ?
+                    ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'] :
+                    ['🐯', '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧'];
+
+                const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
+                element.textContent = randomAnimal;
+                element.style.fontSize = `${size}px`;
+            }
+
+            function makeDraggable(element, elementObj) {
+                let isDragging = false;
+                let offsetX, offsetY;
+
+                element.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    offsetX = e.clientX - element.getBoundingClientRect().left;
+                    offsetY = e.clientY - element.getBoundingClientRect().top;
+                    element.style.cursor = 'grabbing';
+                    element.style.zIndex = '1000';
+                    e.preventDefault();
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    if (!isDragging) return;
+
+                    const x = e.clientX - offsetX - world.getBoundingClientRect().left;
+                    const y = e.clientY - offsetY - world.getBoundingClientRect().top;
+
+                    // Keep within bounds
+                    const maxX = world.offsetWidth - element.offsetWidth;
+                    const maxY = world.offsetHeight - element.offsetHeight;
+
+                    element.style.left = `${Math.max(0, Math.min(x, maxX))}px`;
+                    element.style.top = `${Math.max(0, Math.min(y, maxY))}px`;
+
+                    // Update position in elements array
+                    elementObj.x = x;
+                    elementObj.y = y;
+                });
+
+                document.addEventListener('mouseup', () => {
+                    isDragging = false;
+                    element.style.cursor = 'grab';
+                    element.style.zIndex = '1';
+                });
+            }
+
+            function updateElementCount() {
+                elementCount.textContent = elements.length;
+            }
+
+            function switchPlayer() {
+                if (players === 2) {
+                    currentPlayer = currentPlayer === 1 ? 2 : 1;
+                    currentPlayerDisplay.textContent = currentPlayer;
+                    currentPlayerDisplay.className = currentPlayer === 1 ? 'text-blue-600 font-bold' : 'text-red-600 font-bold';
+                }
+            }
+
+            // Event Listeners
+            onePlayerBtn.addEventListener('click', () => {
+                players = 1;
+                currentPlayer = 1;
+                currentPlayerDisplay.textContent = '1';
+                currentPlayerDisplay.className = 'text-purple-600 font-bold';
+                onePlayerBtn.classList.add('bg-purple-700');
+                twoPlayersBtn.classList.remove('bg-purple-700');
+            });
+
+            twoPlayersBtn.addEventListener('click', () => {
+                players = 2;
+                currentPlayer = 1;
+                currentPlayerDisplay.textContent = '1';
+                currentPlayerDisplay.className = 'text-blue-600 font-bold';
+                twoPlayersBtn.classList.add('bg-purple-700');
+                onePlayerBtn.classList.remove('bg-purple-700');
+            });
+
+            addElementBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentElementType = btn.dataset.type;
+
+                    // Add element at random position
+                    const x = Math.random() * (world.offsetWidth - 100) + 50;
+                    const y = Math.random() * (world.offsetHeight - 100) + 50;
+                    const size = Math.random() * 50 + 30;
+
+                    addElement(currentElementType, x, y, size);
+                    switchPlayer();
+                });
+            });
+
+            clearWorldBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear your world? (Except the sun and clouds)')) {
+                    // Remove all elements except sun and clouds
+                    elements = elements.filter(el => {
+                        if (el.type === 'sun' || el.type === 'cloud') {
+                            return true;
+                        } else {
+                            worldElements.removeChild(el.element);
+                            return false;
+                        }
+                    });
+
+                    updateElementCount();
+                    currentPlayer = 1;
+                    currentPlayerDisplay.textContent = '1';
+                }
+            });
+
+            // Keyboard controls
+            document.addEventListener('keydown', (e) => {
+                if (e.key.toLowerCase() === 'a') {
+                    // Add element at random position
+                    const x = Math.random() * (world.offsetWidth - 100) + 50;
+                    const y = Math.random() * (world.offsetHeight - 100) + 50;
+                    const size = Math.random() * 50 + 30;
+
+                    addElement(currentElementType, x, y, size);
+                    switchPlayer();
+                }
+            });
+
+            // Set initial player
+            onePlayerBtn.click();
+        });
+    </script>
+</body>
+
+</html>
