@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Path Recorder</title>
+<style>
+  body { margin: 0; font-family: system-ui, sans-serif; }
+  #wrap { display:flex; gap:12px; padding:12px; }
+  #left { position:relative; }
+  canvas { border:1px solid #ccc; touch-action:none; }
+  #panel { width:360px; }
+  textarea { width:100%; height:180px; }
+  label { display:block; margin:.5em 0 .25em; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="left">
+    <input type="file" id="file" accept="image/*">
+    <br>
+    <canvas id="cv" width="800" height="600"></canvas>
+  </div>
+  <div id="panel">
+    <label>Distance threshold (px)</label>
+    <input id="dist" type="number" value="6">
+
+    <label>RDP tolerance (px)</label>
+    <input id="rdp" type="number" value="3">
+
+    <label>Catmull-Rom samples per segment</label>
+    <input id="spp" type="number" value="10">
+
+    <button id="clear">Clear</button>
+    <button id="export">Export JS</button>
+    <textarea id="out" spellcheck="false"></textarea>
+    <p>Tip: hold & drag to draw. Multiple strokes are appended.</p>
+  </div>
+</div>
+
+<script>
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const file = document.getElementById('file');
+const distEl = document.getElementById('dist');
+const rdpEl  = document.getElementById('rdp');
+const sppEl  = document.getElementById('spp');
+const out    = document.getElementById('out');
+const canvas = document.getElementById("gameCanvas");
+const pointsRaw = []; // all strokes concatenated
+
+let img = null, drawing=false, last=null;
+
+file.onchange = async () => {
+  const f = file.files[0]; if (!f) return;
+  const url = URL.createObjectURL(f);
+  img = new Image(); img.src = url;
+  await img.decode();
+  cv.width  = canvas.width; cv.height = canvas.height;
+  redraw();
+}
+
+function redraw() {
+  ctx.clearRect(0,0,cv.width,cv.height);
+  if (img) ctx.drawImage(img,0,0,cv.width,cv.height);
+  // draw raw points
+  ctx.lineWidth = 2; ctx.strokeStyle = '#00a';
+  if (pointsRaw.length>1) {
+    ctx.beginPath();
+    ctx.moveTo(pointsRaw[0].x, pointsRaw[0].y);
+    for (let i=1;i<pointsRaw.length;i++) ctx.lineTo(pointsRaw[i].x, pointsRaw[i].y);
+    ctx.stroke();
+  }
+}
+
+function addPoint(p) {
+  const thr = +distEl.value;
+  const L = pointsRaw.length;
+  if (L===0) { pointsRaw.push(p); return; }
+  const q = pointsRaw[L-1];
+  const dx = p.x-q.x, dy = p.y-q.y;
+  if (dx*dx + dy*dy >= thr*thr) pointsRaw.push(p);
+  redraw();
+}
+
+cv.addEventListener('pointerdown', e => { drawing=true; last=null; addPoint(getPos(e)); });
+cv.addEventListener('pointermove', e => { if (drawing) addPoint(getPos(e)); });
+cv.addEventListener('pointerup',   () => drawing=false);
+cv.addEventListener('pointerleave',() => drawing=false);
+
+function getPos(e){
+  const r = cv.getBoundingClientRect();
+  return { x:(e.clientX - r.left)*cv.width/r.width, y:(e.clientY - r.top)*cv.height/r.height };
+}
+
+// --- Simplify (Ramer–Douglas–Peucker) ---
+function rdp(pts, eps){
+  if (pts.length <= 2) return pts.slice();
+  let dmax = 0, idx = 0;
+  const [A,B] = [pts[0], pts[pts.length-1]];
+  for (let i=1;i<pts.length-1;i++){
+    const d = perpDist(pts[i], A, B);
+    if (d > dmax) { dmax = d; idx = i; }
+  }
+  if (dmax > eps) {
+    const left = rdp(pts.slice(0, idx+1), eps);
+    const right= rdp(pts.slice(idx), eps);
+    return left.slice(0,-1).concat(right);
+  } else return [A,B];
+}
+function perpDist(P,A,B){
+  const vx=B.x-A.x, vy=B.y-A.y, wx=P.x-A.x, wy=P.y-A.y;
+  const c1 = vx*wx + vy*wy, c2 = vx*vx + vy*vy;
+  const t = Math.max(0, Math.min(1, c1/c2));
+  const qx = A.x + t*vx, qy = A.y + t*vy;
+  const dx = P.x-qx, dy=P.y-qy;
+  return Math.hypot(dx,dy);
+}
+
+// --- Catmull-Rom smoothing -> sampled polyline ---
+function catmullSample(pts, samplesPerSeg){
+  if (pts.length < 2) return pts.slice();
+  // endpoint duplication for open curve
+  const P = [pts[0], ...pts, pts[pts.length-1]];
+  const out=[];
+  for (let i=0;i<P.length-3;i++){
+    const p0=P[i], p1=P[i+1], p2=P[i+2], p3=P[i+3];
+    for (let j=0;j<samplesPerSeg;j++){
+      const t = j/samplesPerSeg;
+      out.push(catmull(p0,p1,p2,p3,t));
+    }
+  }
+  out.push(pts[pts.length-1]);
+  return out;
+}
+function catmull(p0,p1,p2,p3,t){
+  // centripetal Catmull-Rom (alpha=0.5) – good default
+  // convert to Hermite with m1=(p2-p0)/2, m2=(p3-p1)/2
+  const t2=t*t, t3=t2*t;
+  function comp(a,b,c,d){
+    const m1=(c-a)*0.5, m2=(d-b)*0.5;
+    return (2*t3-3*t2+1)*b + (t3-2*t2+t)*m1 + (-2*t3+3*t2)*c + (t3-t2)*m2;
+  }
+  return { x: comp(p0.x,p1.x,p2.x,p3.x), y: comp(p0.y,p1.y,p2.y,p3.y) };
+}
+
+document.getElementById('clear').onclick = () => { pointsRaw.length=0; redraw(); };
+
+document.getElementById('export').onclick = () => {
+  if (pointsRaw.length < 2) { out.value = '// draw something first'; return; }
+  const simplified = rdp(pointsRaw, +rdpEl.value);
+  const smooth = catmullSample(simplified, +sppEl.value);
+
+  const js = "[\n" +
+    smooth.map(p => `  {x:${p.x.toFixed(1)}, y:${p.y.toFixed(1)}}`).join(",\n") +
+    "\n];\n";
+  out.value = js;
+  // draw preview of smooth (green)
+  redraw();
+  ctx.lineWidth=3; ctx.strokeStyle='#0a4';
+  ctx.beginPath(); ctx.moveTo(smooth[0].x,smooth[0].y);
+  for (let i=1;i<smooth.length;i++) ctx.lineTo(smooth[i].x, smooth[i].y);
+  ctx.stroke();
+};
+</script>
+</body>
+</html>
